@@ -14,5 +14,5 @@ const API_BASE_URL = "https://myplanningportal-api.ryan-95c.workers.dev";
 // Dashboard -- Sandbox tab for testing, Production tab once you go live.
 // Never put your Square ACCESS TOKEN here -- that one's a secret and only
 // ever lives on the myplanningportal-api Worker, never in this file.
-const SQUARE_APPLICATION_ID = "sandbox-sq0idb-YOUR-SANDBOX-APPLICATION-ID";
-const SQUARE_LOCATION_ID = "YOUR-SANDBOX-LOCATION-ID";
+const SQUARE_APPLICATION_ID = "sandbox-sq0idb-SMXWJXsT1mnN9KHTI0cSZw";
+const SQUARE_LOCATION_ID = "F3KKWZJ2X2PZE";
