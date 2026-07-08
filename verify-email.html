@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Confirming your account | myplanningportal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="portal-styles.css">
+</head>
+<body>
+
+<div class="portal-page">
+  <img class="portal-logo" id="portal-logo" src="https://raw.githubusercontent.com/ryangorey/RGMLlogo/102e74830a7fd89dca2451699469c742463da962/my_planning_portal_logo_dark_bg_small.png" alt="myplanningportal">
+
+  <div class="portal-card">
+    <h1 id="title">Confirming your account&hellip;</h1>
+    <p class="portal-sub" id="subtitle">One moment.</p>
+
+    <div id="status" class="portal-status"></div>
+
+    <p class="portal-note" id="fallback-note" style="display:none;">
+      <a href="login.html">Go to sign in</a> or <a href="signup.html">create a new account</a>.
+    </p>
+  </div>
+
+  <p class="portal-footer">Corporate events &middot; Weddings &middot; Full-service planning</p>
+</div>
+
+<script src="portal-config.js"></script>
+<script>
+  (async function applyBranding() {
+    try {
+      const resp = await fetch(API_BASE_URL + "/api/brands");
+      const brands = await resp.json();
+      const mpp = Array.isArray(brands) ? brands.find(function (b) { return b.slug === "myplanningportal"; }) : null;
+      if (!mpp) return;
+      if (mpp.logo_url) document.getElementById("portal-logo").src = API_BASE_URL + mpp.logo_url;
+      if (mpp.primary_color) document.body.style.background = mpp.primary_color;
+    } catch (err) { /* keep the hardcoded defaults on any error */ }
+  })();
+
+  function showStatus(kind, message) {
+    const el = document.getElementById("status");
+    el.textContent = message;
+    el.className = "portal-status show " + kind;
+  }
+
+  (async function verify() {
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    if (!token) {
+      document.getElementById("title").textContent = "Missing confirmation link";
+      document.getElementById("subtitle").textContent = "This page needs a token in the URL -- use the link from your email.";
+      document.getElementById("fallback-note").style.display = "block";
+      return;
+    }
+
+    try {
+      const resp = await fetch(API_BASE_URL + "/api/auth/customer-verify-email", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ token: token })
+      });
+      const data = await resp.json().catch(function () { return null; });
+
+      if (!resp.ok) {
+        document.getElementById("title").textContent = "Couldn't confirm your account";
+        document.getElementById("subtitle").textContent = "";
+        showStatus("error", (data && data.error) || "That link isn't valid.");
+        document.getElementById("fallback-note").style.display = "block";
+        return;
+      }
+
+      localStorage.setItem("mpp_session", JSON.stringify({ token: data.token }));
+      document.getElementById("title").textContent = "You're all set";
+      document.getElementById("subtitle").textContent = "Taking you to your bookings...";
+      window.location.href = "dashboard.html";
+    } catch (err) {
+      document.getElementById("title").textContent = "Couldn't reach the server";
+      document.getElementById("subtitle").textContent = "";
+      showStatus("error", "Check your connection and try that link again.");
+      document.getElementById("fallback-note").style.display = "block";
+    }
+  })();
+</script>
+
+</body>
+</html>
