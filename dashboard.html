@@ -10,6 +10,9 @@
 <link rel="stylesheet" href="portal-styles.css">
 </head>
 <body>
+<!-- Sandbox SDK for testing -- swap to https://web.squarecdn.com/v1/square.js
+     once you switch SQUARE_ENVIRONMENT to production on the backend. -->
+<script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
 
 <div class="dashboard-page">
   <div class="dashboard-topbar">
@@ -55,6 +58,29 @@
 
   function bookingCard(b) {
     const balanceDue = Math.max(0, (b.package_total || 0) - (b.deposit_paid || 0));
+    const retainer = Math.min(balanceDue, Math.round((b.package_total || 0) * 0.5 * 100) / 100);
+    const canPay = b.status === "booked" && balanceDue > 0.004 &&
+      (b.allow_full_payment || b.allow_retainer_payment || b.allow_custom_payment);
+
+    let paymentHtml = "";
+    if (canPay) {
+      paymentHtml =
+        '<div class="payment-options" id="pay-options-' + b.id + '">' +
+          (b.allow_full_payment ? '<button data-pay-type="full" data-id="' + b.id + '">Pay in full (' + money(balanceDue) + ')</button>' : "") +
+          (b.allow_retainer_payment ? '<button data-pay-type="retainer" data-id="' + b.id + '">Pay 50% retainer (' + money(retainer) + ')</button>' : "") +
+          (b.allow_custom_payment ? '<button data-pay-type="custom" data-id="' + b.id + '">Custom amount</button>' : "") +
+        '</div>' +
+        '<div class="payment-form" id="pay-form-' + b.id + '">' +
+          '<div class="payment-msg" id="pay-msg-' + b.id + '"></div>' +
+          '<div class="custom-amount-row" id="pay-custom-row-' + b.id + '">' +
+            '<label>Amount ($)</label>' +
+            '<input type="number" step="0.01" min="0.01" max="' + balanceDue + '" id="pay-custom-amount-' + b.id + '">' +
+          '</div>' +
+          '<div class="sq-card-box" id="sq-card-container-' + b.id + '"></div>' +
+          '<button class="btn-primary" style="width:100%;" id="pay-submit-' + b.id + '" data-id="' + b.id + '">Pay</button>' +
+        '</div>';
+    }
+
     return (
       '<div class="booking-card">' +
         '<span class="brand-tag">' + (b.brand_name || "myplanningportal") + '</span>' +
@@ -66,8 +92,126 @@
           '<span>Total: ' + money(b.package_total) + '</span>' +
           '<span>Balance due: ' + money(balanceDue) + '</span>' +
         '</div>' +
+        paymentHtml +
       '</div>'
     );
+  }
+
+  // -------------------------------------------------------------------
+  // Payments (Square Web Payments SDK)
+  // -------------------------------------------------------------------
+  let squarePayments = null;
+  const cardInstances = {};
+  const selectedAmountType = {};
+
+  async function ensureSquarePayments() {
+    if (squarePayments) return squarePayments;
+    squarePayments = await Square.payments(SQUARE_APPLICATION_ID, SQUARE_LOCATION_ID);
+    return squarePayments;
+  }
+
+  async function ensureCardMounted(bookingId) {
+    if (cardInstances[bookingId]) return cardInstances[bookingId];
+    const payments = await ensureSquarePayments();
+    const card = await payments.card();
+    await card.attach("#sq-card-container-" + bookingId);
+    cardInstances[bookingId] = card;
+    return card;
+  }
+
+  function showPaymentMsg(bookingId, kind, message) {
+    const el = document.getElementById("pay-msg-" + bookingId);
+    el.textContent = message;
+    el.className = "payment-msg show " + kind;
+  }
+
+  function wirePaymentHandlers() {
+    document.querySelectorAll("[data-pay-type]").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        const id = btn.dataset.id;
+        const type = btn.dataset.payType;
+        selectedAmountType[id] = type;
+
+        document.querySelectorAll('#pay-options-' + id + ' button').forEach(function (b) {
+          b.classList.toggle("selected", b === btn);
+        });
+
+        document.getElementById("pay-custom-row-" + id).classList.toggle("show", type === "custom");
+        document.getElementById("pay-form-" + id).classList.add("open");
+
+        try {
+          await ensureCardMounted(id);
+        } catch (err) {
+          showPaymentMsg(id, "error", "Couldn't load the card form. Check SQUARE_APPLICATION_ID / SQUARE_LOCATION_ID in portal-config.js.");
+        }
+      });
+    });
+
+    document.querySelectorAll("[id^='pay-submit-']").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        const id = btn.dataset.id;
+        const type = selectedAmountType[id];
+        if (!type) {
+          showPaymentMsg(id, "error", "Choose a payment option above first.");
+          return;
+        }
+
+        let amount = null;
+        if (type === "custom") {
+          amount = Number(document.getElementById("pay-custom-amount-" + id).value);
+          if (!amount || amount <= 0) {
+            showPaymentMsg(id, "error", "Enter a valid amount.");
+            return;
+          }
+        }
+
+        const card = cardInstances[id];
+        if (!card) {
+          showPaymentMsg(id, "error", "Enter your card details first.");
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Processing...";
+
+        try {
+          const tokenResult = await card.tokenize();
+          if (tokenResult.status !== "OK") {
+            const detail = (tokenResult.errors && tokenResult.errors[0] && tokenResult.errors[0].message) || "Check your card details and try again.";
+            showPaymentMsg(id, "error", detail);
+            return;
+          }
+
+          const session = getSession();
+          const resp = await fetch(API_BASE_URL + "/api/bookings/" + id + "/pay", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              authorization: "Bearer " + session.token
+            },
+            body: JSON.stringify({
+              source_id: tokenResult.token,
+              amount_type: type,
+              amount: amount
+            })
+          });
+          const data = await resp.json().catch(function () { return null; });
+
+          if (!resp.ok) {
+            showPaymentMsg(id, "error", (data && data.error) || "The payment didn't go through.");
+            return;
+          }
+
+          showPaymentMsg(id, "success", "Payment received -- thank you!");
+          setTimeout(loadDashboard, 1200);
+        } catch (err) {
+          showPaymentMsg(id, "error", "Couldn't reach the server. Check your connection and try again.");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Pay";
+        }
+      });
+    });
   }
 
   async function loadDashboard() {
@@ -101,6 +245,12 @@
       return;
     }
     list.innerHTML = bookings.map(bookingCard).join("");
+
+    // Fresh HTML each load -- old card instances point at DOM nodes that no
+    // longer exist, so drop them and let ensureCardMounted() re-attach.
+    Object.keys(cardInstances).forEach(function (id) { delete cardInstances[id]; });
+    Object.keys(selectedAmountType).forEach(function (id) { delete selectedAmountType[id]; });
+    wirePaymentHandlers();
   }
 
   document.getElementById("logout-btn").addEventListener("click", async function () {
