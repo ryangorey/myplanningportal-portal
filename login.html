@@ -12,7 +12,7 @@
 <body>
 
 <div class="portal-page">
-  <img class="portal-logo" src="https://raw.githubusercontent.com/ryangorey/RGMLlogo/102e74830a7fd89dca2451699469c742463da962/my_planning_portal_logo_dark_bg_small.png" alt="myplanningportal">
+  <img class="portal-logo" id="portal-logo" src="https://raw.githubusercontent.com/ryangorey/RGMLlogo/102e74830a7fd89dca2451699469c742463da962/my_planning_portal_logo_dark_bg_small.png" alt="myplanningportal">
 
   <div class="portal-card">
     <h1>Sign in</h1>
@@ -34,6 +34,20 @@
 
 <script src="portal-config.js"></script>
 <script>
+  // Pulls the myplanningportal brand's logo/color from the API and swaps
+  // them in if set -- falls back to the hardcoded defaults above until
+  // someone saves something in the admin Branding panel.
+  (async function applyBranding() {
+    try {
+      const resp = await fetch(API_BASE_URL + "/api/brands");
+      const brands = await resp.json();
+      const mpp = Array.isArray(brands) ? brands.find(function (b) { return b.slug === "myplanningportal"; }) : null;
+      if (!mpp) return;
+      if (mpp.logo_url) document.getElementById("portal-logo").src = API_BASE_URL + mpp.logo_url;
+      if (mpp.primary_color) document.body.style.background = mpp.primary_color;
+    } catch (err) { /* keep the hardcoded defaults on any error */ }
+  })();
+
   const form = document.getElementById("login-form");
   const emailInput = document.getElementById("email");
   const submitBtn = document.getElementById("submit-btn");
