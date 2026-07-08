@@ -56,6 +56,12 @@
     return d.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
   }
 
+  function escapeHtml(s) {
+    const div = document.createElement("div");
+    div.textContent = s == null ? "" : String(s);
+    return div.innerHTML;
+  }
+
   function bookingCard(b) {
     const balanceDue = Math.max(0, (b.package_total || 0) - (b.deposit_paid || 0));
     const retainer = Math.min(balanceDue, Math.round((b.package_total || 0) * 0.5 * 100) / 100);
@@ -81,6 +87,40 @@
         '</div>';
     }
 
+    // Backdrop/template selection is a Grin + Bear Booth (photo booth) thing
+    // only -- doesn't apply to RGML DJ bookings.
+    let selectionHtml = "";
+    if (b.brand_slug === "grinbear") {
+      const pickLines =
+        (b.backdrop_choice ? '<p class="pick-line">Backdrop picked: ' + escapeHtml(b.backdrop_choice) + '</p>' : "") +
+        (b.template_choice ? '<p class="pick-line">Template picked: ' + escapeHtml(b.template_choice) + '</p>' : "");
+
+      const buttons = [];
+      if (b.allow_backdrop_selection) {
+        buttons.push('<button data-sel-type="backdrop" data-id="' + b.id + '">' + (b.backdrop_choice ? "Change backdrop" : "Choose backdrop") + '</button>');
+      }
+      if (b.allow_template_selection) {
+        if (b.booth_type) {
+          buttons.push('<button data-sel-type="template" data-id="' + b.id + '">' + (b.template_choice ? "Change template" : "Choose template") + '</button>');
+        } else {
+          buttons.push('<span style="font-size:12px;color:#6b6355;">Template selection: ask us to set your booth type first</span>');
+        }
+      }
+
+      if (buttons.length || pickLines) {
+        selectionHtml =
+          pickLines +
+          '<div class="payment-options" id="sel-options-' + b.id + '">' + buttons.join("") + '</div>' +
+          '<div class="payment-form" id="sel-form-' + b.id + '" data-booth-type="' + (b.booth_type || "") + '">' +
+            '<div class="payment-msg" id="sel-msg-' + b.id + '"></div>' +
+            '<div class="sq-card-box" id="widget-box-' + b.id + '"></div>' +
+            '<label>What did you pick?</label>' +
+            '<input type="text" id="sel-choice-' + b.id + '" placeholder="e.g. Floral Wall Backdrop">' +
+            '<button class="btn-primary" style="width:100%;" id="sel-submit-' + b.id + '" data-id="' + b.id + '">Save my pick</button>' +
+          '</div>';
+      }
+    }
+
     return (
       '<div class="booking-card">' +
         '<span class="brand-tag">' + (b.brand_name || "myplanningportal") + '</span>' +
@@ -93,6 +133,7 @@
           '<span>Balance due: ' + money(balanceDue) + '</span>' +
         '</div>' +
         paymentHtml +
+        selectionHtml +
       '</div>'
     );
   }
@@ -214,6 +255,126 @@
     });
   }
 
+  // -------------------------------------------------------------------
+  // Backdrop / template selection (PB Backdrops + PBT Gallery widgets)
+  // -------------------------------------------------------------------
+  const BACKDROP_WIDGET_URL = "https://widget.pbbackdrops.com/embed/v1/0d58c666-196a-42da-a9b0-a68db8d385ca?choice=1";
+  const TEMPLATE_WIDGET_URLS = {
+    social: "https://pbtgallery.com?code=16039&galleries=14,15,16,17,42,43,22&em=1527",
+    studio: "https://pbtgallery.com?code=16039&galleries=14,15,16,32,17,39,42,46,64&em=1528"
+  };
+
+  function closeAllSelectionPanels() {
+    document.querySelectorAll(".payment-form[id^='sel-form-'].open").forEach(function (el) {
+      el.classList.remove("open");
+      const box = el.querySelector(".sq-card-box");
+      if (box) box.innerHTML = "";
+    });
+  }
+
+  function loadWidgetInto(container, type, boothType) {
+    container.innerHTML = "";
+    if (type === "backdrop") {
+      const iframe = document.createElement("iframe");
+      iframe.src = BACKDROP_WIDGET_URL;
+      iframe.style.width = "100%";
+      iframe.style.height = "600px";
+      iframe.style.border = "none";
+      container.appendChild(iframe);
+      return;
+    }
+    const galleryUrl = TEMPLATE_WIDGET_URLS[boothType];
+    if (!galleryUrl) return;
+    const iframe = document.createElement("iframe");
+    iframe.src = galleryUrl;
+    iframe.id = "gallery-loader";
+    iframe.setAttribute("frameborder", "0");
+    iframe.setAttribute("scrolling", "no");
+    iframe.style.width = "100%";
+    iframe.style.minHeight = "600px";
+    container.appendChild(iframe);
+    const script = document.createElement("script");
+    script.src = "https://pbtgallery.com/js/embed.js";
+    container.appendChild(script);
+  }
+
+  function wireSelectionHandlers() {
+    document.querySelectorAll("[data-sel-type]").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        const id = btn.dataset.id;
+        const type = btn.dataset.selType;
+        const form = document.getElementById("sel-form-" + id);
+        const wasOpenForThisType = form.classList.contains("open") && form.dataset.currentType === type;
+
+        closeAllSelectionPanels();
+
+        if (wasOpenForThisType) return;
+
+        form.dataset.currentType = type;
+        const box = document.getElementById("widget-box-" + id);
+        loadWidgetInto(box, type, form.dataset.boothType);
+
+        const input = document.getElementById("sel-choice-" + id);
+        input.placeholder = type === "backdrop" ? "e.g. Floral Wall Backdrop" : "e.g. Blush Floral Template";
+
+        form.classList.add("open");
+      });
+    });
+
+    document.querySelectorAll("[id^='sel-submit-']").forEach(function (btn) {
+      btn.addEventListener("click", async function () {
+        const id = btn.dataset.id;
+        const form = document.getElementById("sel-form-" + id);
+        const type = form.dataset.currentType;
+        const msgEl = document.getElementById("sel-msg-" + id);
+        const choice = document.getElementById("sel-choice-" + id).value.trim();
+
+        if (!type) {
+          msgEl.textContent = "Choose backdrop or template above first.";
+          msgEl.className = "payment-msg show error";
+          return;
+        }
+        if (!choice) {
+          msgEl.textContent = "Type in what you picked first.";
+          msgEl.className = "payment-msg show error";
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Saving...";
+
+        try {
+          const session = getSession();
+          const resp = await fetch(API_BASE_URL + "/api/bookings/" + id + "/selection", {
+            method: "POST",
+            headers: {
+              "content-type": "application/json",
+              authorization: "Bearer " + session.token
+            },
+            body: JSON.stringify({ type: type, choice: choice })
+          });
+          const data = await resp.json().catch(function () { return null; });
+
+          if (!resp.ok) {
+            msgEl.textContent = (data && data.error) || "Couldn't save that.";
+            msgEl.className = "payment-msg show error";
+            return;
+          }
+
+          msgEl.textContent = "Saved!";
+          msgEl.className = "payment-msg show success";
+          setTimeout(loadDashboard, 900);
+        } catch (err) {
+          msgEl.textContent = "Couldn't reach the server. Check your connection and try again.";
+          msgEl.className = "payment-msg show error";
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Save my pick";
+        }
+      });
+    });
+  }
+
   async function loadDashboard() {
     const session = getSession();
     if (!session || !session.token) {
@@ -251,6 +412,7 @@
     Object.keys(cardInstances).forEach(function (id) { delete cardInstances[id]; });
     Object.keys(selectedAmountType).forEach(function (id) { delete selectedAmountType[id]; });
     wirePaymentHandlers();
+    wireSelectionHandlers();
   }
 
   document.getElementById("logout-btn").addEventListener("click", async function () {
