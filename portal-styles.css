@@ -257,3 +257,72 @@ input[type="password"] {
   font-size: 14px;
   padding: 48px 0;
 }
+
+/* ------------------------------------------------------------------ */
+/* Payments                                                             */
+/* ------------------------------------------------------------------ */
+
+.payment-options {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 0.5px solid #eee6d6;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.payment-options button {
+  background: transparent;
+  border: 0.5px solid #d8d2c4;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #0e1a2b;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.payment-options button.selected {
+  background: #0e1a2b;
+  color: #f7f3ea;
+  border-color: #0e1a2b;
+}
+
+.payment-form {
+  display: none;
+  margin-top: 14px;
+}
+
+.payment-form.open {
+  display: block;
+}
+
+.payment-form .custom-amount-row {
+  display: none;
+  margin-bottom: 12px;
+}
+
+.payment-form .custom-amount-row.show {
+  display: block;
+}
+
+.sq-card-box {
+  border: 0.5px solid #d8d2c4;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fff;
+  margin-bottom: 12px;
+}
+
+.payment-msg {
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  display: none;
+}
+
+.payment-msg.show { display: block; }
+.payment-msg.success { background: #e9f0e1; color: #3b5f2a; }
+.payment-msg.error { background: #f7e6e3; color: #8a3a2a; }
