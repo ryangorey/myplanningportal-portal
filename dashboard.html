@@ -15,8 +15,8 @@
 <script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
 
 <div class="dashboard-page">
-  <div class="dashboard-topbar">
-    <img src="https://raw.githubusercontent.com/ryangorey/RGMLlogo/102e74830a7fd89dca2451699469c742463da962/my_planning_portal_logo_dark_bg_small.png" alt="myplanningportal">
+  <div class="dashboard-topbar" id="dashboard-topbar">
+    <img id="dashboard-logo" src="https://raw.githubusercontent.com/ryangorey/RGMLlogo/102e74830a7fd89dca2451699469c742463da962/my_planning_portal_logo_dark_bg_small.png" alt="myplanningportal">
     <div class="who">
       <span id="who-name"></span>
       <button id="logout-btn">Sign out</button>
@@ -31,6 +31,20 @@
 
 <script src="portal-config.js"></script>
 <script>
+  // Pulls the myplanningportal brand's logo/color from the API and swaps
+  // them in if set -- falls back to the hardcoded defaults above until
+  // someone saves something in the admin Branding panel.
+  (async function applyBranding() {
+    try {
+      const resp = await fetch(API_BASE_URL + "/api/brands");
+      const brands = await resp.json();
+      const mpp = Array.isArray(brands) ? brands.find(function (b) { return b.slug === "myplanningportal"; }) : null;
+      if (!mpp) return;
+      if (mpp.logo_url) document.getElementById("dashboard-logo").src = API_BASE_URL + mpp.logo_url;
+      if (mpp.primary_color) document.getElementById("dashboard-topbar").style.background = mpp.primary_color;
+    } catch (err) { /* keep the hardcoded defaults on any error */ }
+  })();
+
   function getSession() {
     try {
       const raw = localStorage.getItem("mpp_session");
