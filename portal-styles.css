@@ -63,6 +63,716 @@ label {
 
 input[type="email"],
 input[type="text"],
+input[type="password"],
+input[type="number"],
+input[type="date"],
+select,
+textarea {
+  width: 100%;
+  height: 38px;
+  border: 0.5px solid #d8d2c4;
+  border-radius: 6px;
+  padding: 0 12px;
+  font-size: 14px;
+  background: #fff;
+  margin-bottom: 16px;
+  font-family: inherit;
+  color: #0e1a2b;
+}
+
+textarea {
+  height: auto;
+  padding: 10px 12px;
+  resize: vertical;
+  min-height: 64px;
+}
+
+.btn-primary {
+  width: 100%;
+  height: 40px;
+  background: #bb9159;
+  color: #0e1a2b;
+  border: 0;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.btn-secondary {
+  width: 100%;
+  height: 40px;
+  background: transparent;
+  color: #0e1a2b;
+  border: 0.5px solid #d8d2c4;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.portal-note {
+  font-size: 12px;
+  color: #6b6355;
+  text-align: center;
+  margin: 18px 0 0;
+}
+
+.portal-note a {
+  color: #996b2e;
+  text-decoration: none;
+}
+
+.portal-footer {
+  font-size: 11px;
+  color: #7c8798;
+  margin: 28px 0 0;
+  text-align: center;
+}
+
+.portal-status {
+  font-size: 13px;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin: 0 0 16px;
+  display: none;
+}
+
+.portal-status.show { display: block; }
+
+.portal-status.success {
+  background: #e9f0e1;
+  color: #3b5f2a;
+}
+
+.portal-status.error {
+  background: #f7e6e3;
+  color: #8a3a2a;
+}
+
+/* ------------------------------------------------------------------ */
+/* Dashboard-specific                                                  */
+/* ------------------------------------------------------------------ */
+
+.dashboard-page {
+  min-height: 100vh;
+  background: #f7f3ea;
+  color: #0e1a2b;
+}
+
+.dashboard-topbar {
+  background: #0e1a2b;
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard-topbar img {
+  height: 28px;
+}
+
+.dashboard-topbar .who {
+  font-size: 13px;
+  color: #cfd6e0;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dashboard-topbar button {
+  background: transparent;
+  border: 0.5px solid #3a4a60;
+  color: #cfd6e0;
+  border-radius: 6px;
+  font-size: 12px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.dashboard-content {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.dashboard-content h1 {
+  font-family: "Fraunces", serif;
+  font-size: 24px;
+  font-weight: 500;
+  margin: 0 0 24px;
+}
+
+.booking-card {
+  background: #fff;
+  border: 0.5px solid #e3ddcf;
+  border-radius: 10px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+}
+
+.booking-card .brand-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  color: #996b2e;
+  background: #f1e6d3;
+  border-radius: 4px;
+  padding: 2px 8px;
+  margin-bottom: 10px;
+}
+
+.booking-card .event-date {
+  font-family: "Fraunces", serif;
+  font-size: 17px;
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+
+.booking-card .event-meta {
+  font-size: 13px;
+  color: #6b6355;
+  margin: 0 0 10px;
+}
+
+.booking-card .money-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  border-top: 0.5px solid #eee6d6;
+  padding-top: 10px;
+}
+
+.booking-card .status-pill {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 4px;
+  padding: 2px 8px;
+  text-transform: capitalize;
+}
+
+.status-pill.inquiry { background: #eee6d6; color: #7a6a44; }
+.status-pill.booked { background: #dfe9d6; color: #3b5f2a; }
+.status-pill.completed { background: #dbe3ec; color: #2a4a6b; }
+.status-pill.cancelled { background: #f2ded9; color: #8a3a2a; }
+
+.empty-state {
+  text-align: center;
+  color: #6b6355;
+  font-size: 14px;
+  padding: 48px 0;
+}
+
+.pick-line {
+  font-size: 12px;
+  color: #3b5f2a;
+  margin: 8px 0 0;
+  font-weight: 500;
+}
+
+/* ------------------------------------------------------------------ */
+/* Payments                                                             */
+/* ------------------------------------------------------------------ */
+
+.payment-options {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 0.5px solid #eee6d6;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.payment-options button {
+  background: transparent;
+  border: 0.5px solid #d8d2c4;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: #0e1a2b;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.payment-options button.selected {
+  background: #0e1a2b;
+  color: #f7f3ea;
+  border-color: #0e1a2b;
+}
+
+.payment-form {
+  display: none;
+  margin-top: 14px;
+}
+
+.payment-form.open {
+  display: block;
+}
+
+.payment-form .custom-amount-row {
+  display: none;
+  margin-bottom: 12px;
+}
+
+.payment-form .custom-amount-row.show {
+  display: block;
+}
+
+.sq-card-box {
+  border: 0.5px solid #d8d2c4;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fff;
+  margin-bottom: 12px;
+}
+
+.payment-msg {
+  font-size: 12px;
+  border-radius: 6px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  display: none;
+}
+
+.payment-msg.show { display: block; }
+.payment-msg.success { background: #e9f0e1; color: #3b5f2a; }
+.payment-msg.error { background: #f7e6e3; color: #8a3a2a; }
+
+/* ------------------------------------------------------------------ */
+/* Dashboard v2 -- the full Dashboard / Booking / Payments / Customize   */
+/* portal that replaces the old single-page bookings list above.        */
+/* ------------------------------------------------------------------ */
+
+.dash2-page {
+  min-height: 100vh;
+  background: #faf7f0;
+  color: #0e1a2b;
+}
+
+.dash2-topbar {
+  background: #0e1a2b;
+  padding: 14px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.dash2-topbar img { height: 38px; }
+
+.dash2-nav {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.dash2-nav-item {
+  background: transparent;
+  border: 0;
+  color: #cfd6e0;
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.dash2-nav-item:hover { background: rgba(255,255,255,0.06); }
+.dash2-nav-item.active { color: #d9b06a; font-weight: 500; }
+
+.dash2-who {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dash2-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #bb9159;
+  color: #0e1a2b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: "Fraunces", serif;
+}
+
+.dash2-who button {
+  background: transparent;
+  border: 0.5px solid #3a4a60;
+  color: #cfd6e0;
+  border-radius: 6px;
+  font-size: 12px;
+  padding: 7px 14px;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.dash2-content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 32px 20px 60px;
+}
+
+.dash2-panel { display: none; }
+.dash2-panel.active { display: block; }
+
+.dash2-eyebrow {
+  font-size: 12px;
+  color: #6b6355;
+  margin: 0 0 4px;
+}
+
+#dash2-panel-dashboard h1,
+.dash2-panel h1 {
+  font-family: "Fraunces", serif;
+  font-size: 26px;
+  font-weight: 500;
+  margin: 0 0 24px;
+}
+
+#welcome-name {
+  margin-bottom: 24px;
+}
+
+.dash2-section-title {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b6355;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin: 28px 0 12px;
+}
+
+.dash2-card {
+  background: #fff;
+  border: 0.5px solid #e3ddcf;
+  border-radius: 12px;
+  padding: 22px;
+}
+
+/* Event banner + balance card sit side by side on desktop, stack on mobile */
+.dash2-hero-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 16px;
+}
+
+@media (max-width: 720px) {
+  .dash2-hero-row { grid-template-columns: 1fr; }
+}
+
+.dash2-event-banner {
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0e1a2b;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.dash2-event-banner-img {
+  flex: 1;
+  background: linear-gradient(135deg, #1a2b42, #0e1a2b);
+}
+
+.dash2-event-banner-footer {
+  background: #0e1a2b;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dash2-event-banner-label {
+  display: block;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9aa7b8;
+  margin-bottom: 2px;
+}
+
+.dash2-event-banner-title {
+  display: block;
+  font-family: "Fraunces", serif;
+  font-size: 16px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.dash2-event-banner-countdown {
+  font-size: 12px;
+  color: #cfd6e0;
+  white-space: nowrap;
+}
+
+.dash2-balance-card {
+  background: #fff;
+  border: 0.5px solid #e3ddcf;
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash2-balance-amount {
+  font-family: "Fraunces", serif;
+  font-size: 32px;
+  font-weight: 500;
+  margin: 0 0 4px;
+}
+
+.dash2-balance-note {
+  font-size: 12px;
+  color: #6b6355;
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+.dash2-balance-card .btn-primary { width: auto; align-self: flex-start; padding: 0 20px; }
+
+.dash2-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+}
+
+.dash2-tiles-3 { grid-template-columns: repeat(3, 1fr); }
+
+@media (max-width: 640px) {
+  .dash2-tiles, .dash2-tiles-3 { grid-template-columns: 1fr; }
+}
+
+.dash2-tile {
+  background: #fff;
+  border: 0.5px solid #e3ddcf;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.dash2-tile:hover { border-color: #bb9159; }
+
+.dash2-tile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  background: #f1e6d3;
+  color: #996b2e;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex: 0 0 auto;
+}
+
+.dash2-tile-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #0e1a2b;
+  margin: 0 0 2px;
+}
+
+.dash2-tile-meta {
+  font-size: 12px;
+  color: #6b6355;
+  margin: 0;
+}
+
+.dash2-message-panel {
+  background: #fff;
+  border: 0.5px solid #e3ddcf;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 14px;
+}
+
+.dash2-message-thread {
+  max-height: 280px;
+  overflow-y: auto;
+  margin-bottom: 14px;
+}
+
+.dash2-message-row {
+  max-width: 80%;
+  margin-bottom: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+}
+
+.dash2-message-row.from-customer {
+  background: #0e1a2b;
+  color: #f7f3ea;
+  margin-left: auto;
+  border-bottom-right-radius: 2px;
+}
+
+.dash2-message-row.from-staff {
+  background: #f1ede2;
+  color: #0e1a2b;
+  margin-right: auto;
+  border-bottom-left-radius: 2px;
+}
+
+.dash2-message-row .dash2-message-meta {
+  display: block;
+  font-size: 10px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+
+.dash2-message-compose {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.dash2-message-compose textarea {
+  flex: 1;
+  min-height: 44px;
+  margin-bottom: 0;
+}
+
+.dash2-message-compose button { flex: 0 0 auto; }
+
+.dash2-next-steps {
+  background: #fff;
+  border: 0.5px solid #e3ddcf;
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+
+.dash2-next-steps .dash2-section-title { margin-top: 0; }
+
+.dash2-step-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  border-bottom: 0.5px solid #eee6d6;
+}
+
+.dash2-step-row:last-child { border-bottom: 0; }
+
+.dash2-step-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex: 0 0 auto;
+}
+
+.dash2-step-row.done .dash2-step-icon { background: #dfe9d6; color: #3b5f2a; }
+.dash2-step-row.pending .dash2-step-icon { background: #eee6d6; color: #996b2e; }
+
+.dash2-step-row.pending { color: #6b6355; }
+
+/* Booking panel */
+.dash2-detail-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 10px 0;
+  border-bottom: 0.5px solid #eee6d6;
+  font-size: 14px;
+}
+
+.dash2-detail-row:last-child { border-bottom: 0; }
+.dash2-detail-row .label { color: #6b6355; }
+.dash2-detail-row .value { text-align: right; }
+
+/* Payments panel */
+.dash2-pay-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (max-width: 720px) {
+  .dash2-pay-grid { grid-template-columns: 1fr; }
+}
+
+.dash2-summary-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+.dash2-summary-line.total {
+  border-top: 0.5px solid #eee6d6;
+  margin-top: 8px;
+  padding-top: 14px;
+  font-family: "Fraunces", serif;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.dash2-summary-line .credit { color: #3b5f2a; }
+
+/* Event switcher, shown only when a customer has more than one booking */
+#event-switcher-wrap {
+  margin-bottom: 20px;
+  max-width: 320px;
+}
+
+#event-switcher-wrap select { margin-bottom: 0; }  padding: 32px 28px;
+}
+
+.portal-card h1 {
+  font-family: "Fraunces", serif;
+  font-size: 22px;
+  font-weight: 500;
+  color: #0e1a2b;
+  margin: 0 0 4px;
+  text-align: center;
+}
+
+.portal-card p.portal-sub {
+  font-size: 13px;
+  color: #6b6355;
+  margin: 0 0 24px;
+  text-align: center;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: #0e1a2b;
+  margin: 0 0 6px;
+}
+
+input[type="email"],
+input[type="text"],
 input[type="password"] {
   width: 100%;
   height: 38px;
