@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Your bookings | myplanningportal</title>
+<title>Your dashboard | myplanningportal</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -14,18 +14,153 @@
      once you switch SQUARE_ENVIRONMENT to production on the backend. -->
 <script src="https://sandbox.web.squarecdn.com/v1/square.js"></script>
 
-<div class="dashboard-page">
-  <div class="dashboard-topbar" id="dashboard-topbar">
+<div class="dash2-page">
+  <div class="dash2-topbar" id="dash2-topbar">
     <img id="dashboard-logo" src="https://raw.githubusercontent.com/ryangorey/RGMLlogo/102e74830a7fd89dca2451699469c742463da962/my_planning_portal_logo_dark_bg_small.png" alt="myplanningportal">
-    <div class="who">
-      <span id="who-name"></span>
-      <button id="logout-btn">Sign out</button>
+    <nav class="dash2-nav">
+      <button class="dash2-nav-item active" data-panel="dashboard">Dashboard</button>
+      <button class="dash2-nav-item" data-panel="booking">Booking</button>
+      <button class="dash2-nav-item" data-panel="payments">Payments</button>
+      <button class="dash2-nav-item" data-panel="customize" id="nav-customize" style="display:none;">Customize</button>
+    </nav>
+    <div class="dash2-who">
+      <div class="dash2-avatar" id="dash2-avatar"></div>
+      <button id="logout-btn">Log out</button>
     </div>
   </div>
 
-  <div class="dashboard-content">
-    <h1>Your bookings</h1>
-    <div id="bookings-list"></div>
+  <div class="dash2-content">
+
+    <div id="event-switcher-wrap" style="display:none;">
+      <label for="event-switcher">Viewing event</label>
+      <select id="event-switcher"></select>
+    </div>
+
+    <div id="load-error" class="portal-status" style="margin-bottom:16px;"></div>
+    <div id="no-bookings-empty" class="empty-state" style="display:none;">
+      No bookings yet. Once you inquire or book an event, it will show up here.
+    </div>
+
+    <div id="dash2-app" style="display:none;">
+
+      <!-- ============================== Dashboard ============================== -->
+      <div class="dash2-panel active" id="dash2-panel-dashboard">
+        <p class="dash2-eyebrow">Welcome back</p>
+        <h1 id="welcome-name">Hi</h1>
+
+        <div class="dash2-hero-row">
+          <div class="dash2-event-banner">
+            <div class="dash2-event-banner-img"></div>
+            <div class="dash2-event-banner-footer">
+              <div>
+                <span class="dash2-event-banner-label">Your event</span>
+                <span class="dash2-event-banner-title" id="event-banner-title"></span>
+              </div>
+              <span class="dash2-event-banner-countdown" id="event-banner-countdown"></span>
+            </div>
+          </div>
+
+          <div class="dash2-balance-card">
+            <p class="dash2-eyebrow">Balance due</p>
+            <p class="dash2-balance-amount" id="dash2-balance-amount">$0.00</p>
+            <p class="dash2-balance-note" id="dash2-balance-note"></p>
+            <button class="btn-primary" id="dash2-pay-btn">Pay with Square</button>
+          </div>
+        </div>
+
+        <div id="customize-tiles-wrap" style="display:none;">
+          <p class="dash2-section-title">Customize your booth</p>
+          <div class="dash2-tiles" id="customize-tiles"></div>
+        </div>
+
+        <p class="dash2-section-title">Quick actions</p>
+        <div class="dash2-tiles dash2-tiles-3">
+          <button class="dash2-tile" id="tile-event-details">
+            <span class="dash2-tile-icon">&#128197;</span>
+            <span>
+              <span class="dash2-tile-title">Event details</span>
+              <span class="dash2-tile-meta">See the full booking</span>
+            </span>
+          </button>
+          <button class="dash2-tile" id="tile-message-us">
+            <span class="dash2-tile-icon">&#128172;</span>
+            <span>
+              <span class="dash2-tile-title">Message us</span>
+              <span class="dash2-tile-meta">Ask a question</span>
+            </span>
+          </button>
+          <button class="dash2-tile" id="tile-contract">
+            <span class="dash2-tile-icon">&#128196;</span>
+            <span>
+              <span class="dash2-tile-title">Contract</span>
+              <span class="dash2-tile-meta" id="tile-contract-meta">View your contract</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="dash2-message-panel" id="message-panel" style="display:none;">
+          <p class="dash2-section-title" style="margin-top:0;">Messages</p>
+          <div id="message-thread" class="dash2-message-thread"></div>
+          <div id="message-status" class="portal-status"></div>
+          <div class="dash2-message-compose">
+            <textarea id="message-input" placeholder="Type a message..." rows="1"></textarea>
+            <button class="btn-secondary" id="message-send-btn">Send</button>
+          </div>
+        </div>
+
+        <div class="dash2-next-steps">
+          <p class="dash2-section-title">Next steps</p>
+          <div id="next-steps-list"></div>
+        </div>
+      </div>
+
+      <!-- ============================== Booking ============================== -->
+      <div class="dash2-panel" id="dash2-panel-booking">
+        <h1>Booking</h1>
+        <div class="dash2-card" id="booking-detail-card"></div>
+      </div>
+
+      <!-- ============================== Payments ============================== -->
+      <div class="dash2-panel" id="dash2-panel-payments">
+        <h1>Pay your balance</h1>
+        <div class="dash2-pay-grid">
+          <div class="dash2-card" id="order-summary-card">
+            <p class="dash2-section-title" style="margin-top:0;">Order summary</p>
+            <div id="order-summary-body"></div>
+          </div>
+          <div class="dash2-card" id="payment-form-card">
+            <p class="dash2-section-title" style="margin-top:0;">Card information</p>
+            <div id="payment-msg" class="payment-msg"></div>
+            <div class="payment-options" id="pay-options"></div>
+            <div class="payment-form" id="pay-form">
+              <div class="custom-amount-row" id="pay-custom-row">
+                <label>Amount ($)</label>
+                <input type="number" step="0.01" min="0.01" id="pay-custom-amount">
+              </div>
+              <div class="sq-card-box" id="sq-card-container"></div>
+              <button class="btn-primary" style="width:100%;" id="pay-submit-btn">Pay</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================== Customize ============================== -->
+      <div class="dash2-panel" id="dash2-panel-customize">
+        <h1>Customize your booth</h1>
+        <div class="dash2-card" id="customize-detail-card">
+          <div id="customize-picks"></div>
+          <div class="payment-options" id="sel-options"></div>
+          <div class="payment-form" id="sel-form">
+            <div class="payment-msg" id="sel-msg"></div>
+            <div class="sq-card-box" id="widget-box"></div>
+            <label>What did you pick?</label>
+            <input type="text" id="sel-choice" placeholder="e.g. Floral Wall Backdrop">
+            <button class="btn-primary" style="width:100%;" id="sel-submit-btn">Save my pick</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
 </div>
 
@@ -41,7 +176,7 @@
       const mpp = Array.isArray(brands) ? brands.find(function (b) { return b.slug === "myplanningportal"; }) : null;
       if (!mpp) return;
       if (mpp.logo_url) document.getElementById("dashboard-logo").src = API_BASE_URL + mpp.logo_url;
-      if (mpp.primary_color) document.getElementById("dashboard-topbar").style.background = mpp.primary_color;
+      if (mpp.primary_color) document.getElementById("dash2-topbar").style.background = mpp.primary_color;
     } catch (err) { /* keep the hardcoded defaults on any error */ }
   })();
 
@@ -59,6 +194,22 @@
     window.location.replace("/login.html");
   }
 
+  const session = getSession();
+  if (!session || !session.token) {
+    clearSessionAndRedirect();
+  }
+
+  async function authFetch(path, options) {
+    options = options || {};
+    options.headers = Object.assign({}, options.headers, { authorization: "Bearer " + session.token });
+    const resp = await fetch(API_BASE_URL + path, options);
+    if (resp.status === 401) {
+      clearSessionAndRedirect();
+      throw new Error("Session expired");
+    }
+    return resp;
+  }
+
   function money(n) {
     return "$" + Number(n || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
@@ -70,94 +221,314 @@
     return d.toLocaleDateString(undefined, { weekday: "long", year: "numeric", month: "long", day: "numeric" });
   }
 
+  function daysUntil(iso) {
+    if (!iso) return null;
+    const target = new Date(iso + "T00:00:00");
+    if (isNaN(target.getTime())) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return Math.round((target - today) / 86400000);
+  }
+
   function escapeHtml(s) {
     const div = document.createElement("div");
     div.textContent = s == null ? "" : String(s);
     return div.innerHTML;
   }
 
-  function bookingCard(b) {
+  // -------------------------------------------------------------------
+  // Panel switching (Dashboard / Booking / Payments / Customize)
+  // -------------------------------------------------------------------
+  function showPortalPanel(name) {
+    document.querySelectorAll(".dash2-nav-item").forEach(function (btn) { btn.classList.remove("active"); });
+    document.querySelectorAll(".dash2-panel").forEach(function (p) { p.classList.remove("active"); });
+    const navBtn = document.querySelector('.dash2-nav-item[data-panel="' + name + '"]');
+    if (navBtn) navBtn.classList.add("active");
+    const panel = document.getElementById("dash2-panel-" + name);
+    if (panel) panel.classList.add("active");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  document.querySelectorAll(".dash2-nav-item").forEach(function (btn) {
+    btn.addEventListener("click", function () { showPortalPanel(btn.dataset.panel); });
+  });
+
+  // -------------------------------------------------------------------
+  // Loading bookings + picking which one is "current"
+  // -------------------------------------------------------------------
+  let allBookings = [];
+  let currentBookingId = null;
+
+  function currentBooking() {
+    return allBookings.find(function (b) { return b.id === currentBookingId; }) || null;
+  }
+
+  function pickDefaultBooking(bookings) {
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const upcoming = bookings
+      .filter(function (b) { return b.event_date >= todayStr && b.status !== "cancelled"; })
+      .sort(function (a, b) { return a.event_date.localeCompare(b.event_date); });
+    if (upcoming.length) return upcoming[0].id;
+    // Nothing upcoming -- fall back to the most recent booking overall.
+    const sorted = bookings.slice().sort(function (a, b) { return b.event_date.localeCompare(a.event_date); });
+    return sorted.length ? sorted[0].id : null;
+  }
+
+  function renderEventSwitcher() {
+    const wrap = document.getElementById("event-switcher-wrap");
+    if (allBookings.length <= 1) {
+      wrap.style.display = "none";
+      return;
+    }
+    wrap.style.display = "block";
+    const select = document.getElementById("event-switcher");
+    select.innerHTML = allBookings.map(function (b) {
+      const label = formatDate(b.event_date) + " -- " + (b.brand_name || "") + (b.package_name ? " (" + b.package_name + ")" : "");
+      return '<option value="' + b.id + '"' + (b.id === currentBookingId ? " selected" : "") + '>' + escapeHtml(label) + "</option>";
+    }).join("");
+  }
+
+  document.getElementById("event-switcher").addEventListener("change", function () {
+    currentBookingId = Number(this.value);
+    document.getElementById("message-panel").style.display = "none";
+    renderAll();
+  });
+
+  // -------------------------------------------------------------------
+  // Dashboard panel
+  // -------------------------------------------------------------------
+  function renderDashboardPanel() {
+    const b = currentBooking();
+    if (!b) return;
+
+    document.getElementById("welcome-name").textContent =
+      "Hi, " + (session.customer && session.customer.first_name ? session.customer.first_name : "there");
+
+    document.getElementById("event-banner-title").textContent =
+      formatDate(b.event_date) + " -- " + (b.package_name || b.event_type || b.brand_name || "Your event");
+
+    const days = daysUntil(b.event_date);
+    let countdown = "";
+    if (b.status === "cancelled") countdown = "Cancelled";
+    else if (days == null) countdown = "";
+    else if (days > 1) countdown = days + " days to go";
+    else if (days === 1) countdown = "Tomorrow";
+    else if (days === 0) countdown = "Today!";
+    else countdown = "Completed";
+    document.getElementById("event-banner-countdown").textContent = countdown;
+
     const balanceDue = Math.max(0, (b.package_total || 0) - (b.deposit_paid || 0));
-    const retainer = Math.min(balanceDue, Math.round((b.package_total || 0) * 0.5 * 100) / 100);
     const canPay = b.status === "booked" && balanceDue > 0.004 &&
       (b.allow_full_payment || b.allow_retainer_payment || b.allow_custom_payment);
+    document.getElementById("dash2-balance-amount").textContent = money(balanceDue);
+    document.getElementById("dash2-balance-note").textContent =
+      balanceDue <= 0.004 ? "You're all paid up." : (canPay ? "Pay any time before your event." : "Reach out if you'd like to make a payment.");
+    document.getElementById("dash2-pay-btn").disabled = !canPay;
+    document.getElementById("dash2-pay-btn").style.opacity = canPay ? "1" : "0.5";
 
-    let paymentHtml = "";
-    if (canPay) {
-      paymentHtml =
-        '<div class="payment-options" id="pay-options-' + b.id + '">' +
-          (b.allow_full_payment ? '<button data-pay-type="full" data-id="' + b.id + '">Pay in full (' + money(balanceDue) + ')</button>' : "") +
-          (b.allow_retainer_payment ? '<button data-pay-type="retainer" data-id="' + b.id + '">Pay 50% retainer (' + money(retainer) + ')</button>' : "") +
-          (b.allow_custom_payment ? '<button data-pay-type="custom" data-id="' + b.id + '">Custom amount</button>' : "") +
-        '</div>' +
-        '<div class="payment-form" id="pay-form-' + b.id + '">' +
-          '<div class="payment-msg" id="pay-msg-' + b.id + '"></div>' +
-          '<div class="custom-amount-row" id="pay-custom-row-' + b.id + '">' +
-            '<label>Amount ($)</label>' +
-            '<input type="number" step="0.01" min="0.01" max="' + balanceDue + '" id="pay-custom-amount-' + b.id + '">' +
-          '</div>' +
-          '<div class="sq-card-box" id="sq-card-container-' + b.id + '"></div>' +
-          '<button class="btn-primary" style="width:100%;" id="pay-submit-' + b.id + '" data-id="' + b.id + '">Pay</button>' +
-        '</div>';
-    }
-
-    // Backdrop/template selection is a Grin + Bear Booth (photo booth) thing
-    // only -- doesn't apply to RGML DJ bookings.
-    let selectionHtml = "";
-    if (b.brand_slug === "grinbear") {
-      const pickLines =
-        (b.backdrop_choice ? '<p class="pick-line">Backdrop picked: ' + escapeHtml(b.backdrop_choice) + '</p>' : "") +
-        (b.template_choice ? '<p class="pick-line">Template picked: ' + escapeHtml(b.template_choice) + '</p>' : "");
-
-      const buttons = [];
+    // Customize tiles -- backdrop/template are a Grin + Bear Booth thing only.
+    const isBooth = b.brand_slug === "grinbear";
+    const customizeWrap = document.getElementById("customize-tiles-wrap");
+    const navCustomize = document.getElementById("nav-customize");
+    if (isBooth && (b.allow_backdrop_selection || b.allow_template_selection)) {
+      customizeWrap.style.display = "block";
+      navCustomize.style.display = "";
+      const tiles = [];
       if (b.allow_backdrop_selection) {
-        buttons.push('<button data-sel-type="backdrop" data-id="' + b.id + '">' + (b.backdrop_choice ? "Change backdrop" : "Choose backdrop") + '</button>');
+        tiles.push(
+          '<button class="dash2-tile" data-open-customize="1">' +
+            '<span class="dash2-tile-icon">&#8862;</span>' +
+            '<span><span class="dash2-tile-title">Backdrop</span>' +
+            '<span class="dash2-tile-meta">' + (b.backdrop_choice ? "Selected: " + escapeHtml(b.backdrop_choice) : "Not selected yet") + "</span></span>" +
+          "</button>"
+        );
       }
       if (b.allow_template_selection) {
-        if (b.booth_type) {
-          buttons.push('<button data-sel-type="template" data-id="' + b.id + '">' + (b.template_choice ? "Change template" : "Choose template") + '</button>');
-        } else {
-          buttons.push('<span style="font-size:12px;color:#6b6355;">Template selection: ask us to set your booth type first</span>');
-        }
+        tiles.push(
+          '<button class="dash2-tile" data-open-customize="1">' +
+            '<span class="dash2-tile-icon">&#9776;</span>' +
+            '<span><span class="dash2-tile-title">Template</span>' +
+            '<span class="dash2-tile-meta">' + (b.template_choice ? "Selected: " + escapeHtml(b.template_choice) : "Not selected yet") + "</span></span>" +
+          "</button>"
+        );
       }
-
-      if (buttons.length || pickLines) {
-        selectionHtml =
-          pickLines +
-          '<div class="payment-options" id="sel-options-' + b.id + '">' + buttons.join("") + '</div>' +
-          '<div class="payment-form" id="sel-form-' + b.id + '" data-booth-type="' + (b.booth_type || "") + '">' +
-            '<div class="payment-msg" id="sel-msg-' + b.id + '"></div>' +
-            '<div class="sq-card-box" id="widget-box-' + b.id + '"></div>' +
-            '<label>What did you pick?</label>' +
-            '<input type="text" id="sel-choice-' + b.id + '" placeholder="e.g. Floral Wall Backdrop">' +
-            '<button class="btn-primary" style="width:100%;" id="sel-submit-' + b.id + '" data-id="' + b.id + '">Save my pick</button>' +
-          '</div>';
-      }
+      document.getElementById("customize-tiles").innerHTML = tiles.join("");
+      document.querySelectorAll("[data-open-customize]").forEach(function (el) {
+        el.addEventListener("click", function () { showPortalPanel("customize"); });
+      });
+    } else {
+      customizeWrap.style.display = "none";
+      navCustomize.style.display = "none";
     }
 
+    // Contract tile
+    document.getElementById("tile-contract-meta").textContent = b.contract_url ? "View your contract" : "Not available yet";
+
+    // Next steps
+    renderNextSteps(b, isBooth);
+  }
+
+  function stepRow(label, done) {
     return (
-      '<div class="booking-card">' +
-        '<span class="brand-tag">' + (b.brand_name || "myplanningportal") + '</span>' +
-        '<p class="event-date">' + formatDate(b.event_date) + '</p>' +
-        '<p class="event-meta">' + (b.package_name || b.event_type || "Event") +
-          (b.event_type ? ' &middot; ' + b.event_type : '') + '</p>' +
-        '<span class="status-pill ' + (b.status || 'inquiry') + '">' + (b.status || "inquiry") + '</span>' +
-        '<div class="money-row">' +
-          '<span>Total: ' + money(b.package_total) + '</span>' +
-          '<span>Balance due: ' + money(balanceDue) + '</span>' +
-        '</div>' +
-        paymentHtml +
-        selectionHtml +
-      '</div>'
+      '<div class="dash2-step-row ' + (done ? "done" : "pending") + '">' +
+        '<span class="dash2-step-icon">' + (done ? "&#10003;" : "&#9675;") + "</span>" +
+        "<span>" + escapeHtml(label) + "</span>" +
+      "</div>"
     );
   }
 
+  function renderNextSteps(b, isBooth) {
+    const steps = [];
+    if (isBooth && b.allow_backdrop_selection) {
+      steps.push({ label: b.backdrop_choice ? "Backdrop selected" : "Choose your backdrop", done: !!b.backdrop_choice });
+    }
+    if (isBooth && b.allow_template_selection) {
+      steps.push({ label: b.template_choice ? "Photo template selected" : "Choose your photo template", done: !!b.template_choice });
+    }
+    if ((b.package_total || 0) > 0) {
+      steps.push({ label: (b.deposit_paid || 0) > 0 ? "Deposit paid" : "Pay your deposit", done: (b.deposit_paid || 0) > 0 });
+      const balanceDue = Math.max(0, (b.package_total || 0) - (b.deposit_paid || 0));
+      steps.push({ label: balanceDue <= 0.004 ? "Balance paid in full" : "Pay your remaining balance", done: balanceDue <= 0.004 });
+    }
+    steps.push({ label: b.contract_url ? "Contract on file" : "Review your contract", done: !!b.contract_url });
+
+    document.getElementById("next-steps-list").innerHTML = steps.map(function (s) { return stepRow(s.label, s.done); }).join("");
+  }
+
+  document.getElementById("dash2-pay-btn").addEventListener("click", function () {
+    if (this.disabled) return;
+    showPortalPanel("payments");
+  });
+  document.getElementById("tile-event-details").addEventListener("click", function () { showPortalPanel("booking"); });
+  document.getElementById("tile-contract").addEventListener("click", function () {
+    const b = currentBooking();
+    if (b && b.contract_url) {
+      window.open(API_BASE_URL + b.contract_url, "_blank");
+    } else {
+      toggleMessagePanel(true);
+      showMessageStatus("error", "Your contract isn't up yet -- send us a message and we'll get it to you.");
+    }
+  });
+
   // -------------------------------------------------------------------
-  // Payments (Square Web Payments SDK)
+  // Messages ("Message us")
+  // -------------------------------------------------------------------
+  let messagesLoadedFor = null;
+
+  function showMessageStatus(kind, message) {
+    const el = document.getElementById("message-status");
+    el.textContent = message;
+    el.className = "portal-status show " + kind;
+  }
+
+  function messageRowHtml(m) {
+    const isCustomer = m.sender_type === "customer";
+    const name = isCustomer
+      ? ((m.customer_first_name || "") + " " + (m.customer_last_name || "")).trim() || "You"
+      : ((m.staff_first_name || "") + " " + (m.staff_last_name || "")).trim() || "Our team";
+    const when = (m.created_at || "").replace("T", " ").slice(0, 16);
+    return (
+      '<div class="dash2-message-row ' + (isCustomer ? "from-customer" : "from-staff") + '">' +
+        escapeHtml(m.body) +
+        '<span class="dash2-message-meta">' + escapeHtml(name) + (when ? " -- " + when : "") + "</span>" +
+      "</div>"
+    );
+  }
+
+  async function loadMessages() {
+    const b = currentBooking();
+    if (!b) return;
+    const resp = await authFetch("/api/bookings/" + b.id + "/messages");
+    const rows = await resp.json().catch(function () { return []; });
+    const thread = document.getElementById("message-thread");
+    if (!Array.isArray(rows) || rows.length === 0) {
+      thread.innerHTML = '<div class="empty-state" style="padding:20px 0;">No messages yet -- say hello!</div>';
+    } else {
+      thread.innerHTML = rows.map(messageRowHtml).join("");
+      thread.scrollTop = thread.scrollHeight;
+    }
+    messagesLoadedFor = b.id;
+  }
+
+  function toggleMessagePanel(forceOpen) {
+    const panel = document.getElementById("message-panel");
+    const shouldOpen = forceOpen === true || panel.style.display === "none";
+    panel.style.display = shouldOpen ? "block" : "none";
+    if (shouldOpen) {
+      const b = currentBooking();
+      if (b && messagesLoadedFor !== b.id) {
+        loadMessages().catch(function () { showMessageStatus("error", "Couldn't load messages. Check your connection."); });
+      }
+      panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }
+
+  document.getElementById("tile-message-us").addEventListener("click", function () { toggleMessagePanel(); });
+
+  document.getElementById("message-send-btn").addEventListener("click", async function () {
+    const b = currentBooking();
+    if (!b) return;
+    const input = document.getElementById("message-input");
+    const text = input.value.trim();
+    if (!text) { showMessageStatus("error", "Type a message first."); return; }
+
+    const btn = this;
+    btn.disabled = true;
+    try {
+      const resp = await authFetch("/api/bookings/" + b.id + "/messages", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ body: text })
+      });
+      const data = await resp.json().catch(function () { return null; });
+      if (!resp.ok) {
+        showMessageStatus("error", (data && data.error) || "Couldn't send that message.");
+        return;
+      }
+      input.value = "";
+      document.getElementById("message-status").className = "portal-status";
+      await loadMessages();
+    } catch (err) {
+      showMessageStatus("error", "Couldn't reach the server. Check your connection and try again.");
+    } finally {
+      btn.disabled = false;
+    }
+  });
+
+  // -------------------------------------------------------------------
+  // Booking panel
+  // -------------------------------------------------------------------
+  function detailRow(label, value) {
+    return (
+      '<div class="dash2-detail-row"><span class="label">' + escapeHtml(label) + '</span><span class="value">' + value + "</span></div>"
+    );
+  }
+
+  function renderBookingPanel() {
+    const b = currentBooking();
+    if (!b) return;
+    const venue = [b.venue_name, [b.venue_city, b.venue_state].filter(Boolean).join(", ")].filter(Boolean).join(" -- ");
+
+    let html = "";
+    html += detailRow("Brand", escapeHtml(b.brand_name || ""));
+    html += detailRow("Date", escapeHtml(formatDate(b.event_date)));
+    html += detailRow("Event type", escapeHtml(b.event_type || b.package_name || "--"));
+    html += detailRow("Package", escapeHtml(b.package_name || "--"));
+    if (venue) html += detailRow("Venue", escapeHtml(venue));
+    html += detailRow("Status", '<span class="status-pill ' + b.status + '">' + b.status + "</span>");
+    html += detailRow("Package total", money(b.package_total));
+    html += detailRow("Deposit paid", money(b.deposit_paid));
+    if (b.notes) html += detailRow("Notes from us", escapeHtml(b.notes));
+
+    document.getElementById("booking-detail-card").innerHTML = html;
+  }
+
+  // -------------------------------------------------------------------
+  // Payments panel (Square Web Payments SDK)
   // -------------------------------------------------------------------
   let squarePayments = null;
-  const cardInstances = {};
-  const selectedAmountType = {};
+  let cardInstance = null;
+  let selectedAmountType = null;
 
   async function ensureSquarePayments() {
     if (squarePayments) return squarePayments;
@@ -165,126 +536,124 @@
     return squarePayments;
   }
 
-  async function ensureCardMounted(bookingId) {
-    if (cardInstances[bookingId]) return cardInstances[bookingId];
+  async function ensureCardMounted() {
+    if (cardInstance) return cardInstance;
     const payments = await ensureSquarePayments();
     const card = await payments.card();
-    await card.attach("#sq-card-container-" + bookingId);
-    cardInstances[bookingId] = card;
+    await card.attach("#sq-card-container");
+    cardInstance = card;
     return card;
   }
 
-  function showPaymentMsg(bookingId, kind, message) {
-    const el = document.getElementById("pay-msg-" + bookingId);
+  function showPaymentMsg(kind, message) {
+    const el = document.getElementById("payment-msg");
     el.textContent = message;
     el.className = "payment-msg show " + kind;
   }
 
-  function wirePaymentHandlers() {
-    document.querySelectorAll("[data-pay-type]").forEach(function (btn) {
+  function renderPaymentsPanel() {
+    const b = currentBooking();
+    if (!b) return;
+    const balanceDue = Math.max(0, (b.package_total || 0) - (b.deposit_paid || 0));
+    const retainer = Math.min(balanceDue, Math.round((b.package_total || 0) * 0.5 * 100) / 100);
+    const canPay = b.status === "booked" && balanceDue > 0.004 &&
+      (b.allow_full_payment || b.allow_retainer_payment || b.allow_custom_payment);
+
+    document.getElementById("order-summary-body").innerHTML =
+      '<p style="font-family:\'Fraunces\',serif;font-size:16px;font-weight:500;margin:0 0 4px;">' + escapeHtml(formatDate(b.event_date)) + "</p>" +
+      '<p style="font-size:13px;color:#6b6355;margin:0 0 16px;">' + escapeHtml(b.package_name || b.event_type || "Event") + "</p>" +
+      '<div class="dash2-summary-line"><span>Package total</span><span>' + money(b.package_total) + "</span></div>" +
+      '<div class="dash2-summary-line"><span>Deposit paid</span><span class="credit">-' + money(b.deposit_paid) + "</span></div>" +
+      '<div class="dash2-summary-line total"><span>Balance due</span><span>' + money(balanceDue) + "</span></div>";
+
+    cardInstance = null;
+    selectedAmountType = null;
+    document.getElementById("pay-form").classList.remove("open");
+    document.getElementById("pay-custom-row").classList.remove("show");
+    document.getElementById("sq-card-container").innerHTML = "";
+    document.getElementById("payment-msg").className = "payment-msg";
+
+    const optionsBox = document.getElementById("pay-options");
+    if (!canPay) {
+      optionsBox.innerHTML = '<span style="font-size:13px;color:#6b6355;">' +
+        (balanceDue <= 0.004 ? "You're all paid up -- nothing due right now." : "Payment isn't open on this booking yet. Message us if you'd like to pay.") +
+        "</span>";
+      return;
+    }
+
+    const buttons = [];
+    if (b.allow_full_payment) buttons.push('<button data-pay-type="full">Pay in full (' + money(balanceDue) + ")</button>");
+    if (b.allow_retainer_payment) buttons.push('<button data-pay-type="retainer">Pay 50% retainer (' + money(retainer) + ")</button>");
+    if (b.allow_custom_payment) buttons.push('<button data-pay-type="custom">Custom amount</button>');
+    optionsBox.innerHTML = buttons.join("");
+    document.getElementById("pay-custom-amount").max = balanceDue;
+
+    optionsBox.querySelectorAll("[data-pay-type]").forEach(function (btn) {
       btn.addEventListener("click", async function () {
-        const id = btn.dataset.id;
-        const type = btn.dataset.payType;
-        selectedAmountType[id] = type;
-
-        document.querySelectorAll('#pay-options-' + id + ' button').forEach(function (b) {
-          b.classList.toggle("selected", b === btn);
-        });
-
-        document.getElementById("pay-custom-row-" + id).classList.toggle("show", type === "custom");
-        document.getElementById("pay-form-" + id).classList.add("open");
-
+        selectedAmountType = btn.dataset.payType;
+        optionsBox.querySelectorAll("button").forEach(function (b2) { b2.classList.toggle("selected", b2 === btn); });
+        document.getElementById("pay-custom-row").classList.toggle("show", selectedAmountType === "custom");
+        document.getElementById("pay-form").classList.add("open");
         try {
-          await ensureCardMounted(id);
+          await ensureCardMounted();
         } catch (err) {
-          showPaymentMsg(id, "error", "Couldn't load the card form. Check SQUARE_APPLICATION_ID / SQUARE_LOCATION_ID in portal-config.js.");
-        }
-      });
-    });
-
-    document.querySelectorAll("[id^='pay-submit-']").forEach(function (btn) {
-      btn.addEventListener("click", async function () {
-        const id = btn.dataset.id;
-        const type = selectedAmountType[id];
-        if (!type) {
-          showPaymentMsg(id, "error", "Choose a payment option above first.");
-          return;
-        }
-
-        let amount = null;
-        if (type === "custom") {
-          amount = Number(document.getElementById("pay-custom-amount-" + id).value);
-          if (!amount || amount <= 0) {
-            showPaymentMsg(id, "error", "Enter a valid amount.");
-            return;
-          }
-        }
-
-        const card = cardInstances[id];
-        if (!card) {
-          showPaymentMsg(id, "error", "Enter your card details first.");
-          return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = "Processing...";
-
-        try {
-          const tokenResult = await card.tokenize();
-          if (tokenResult.status !== "OK") {
-            const detail = (tokenResult.errors && tokenResult.errors[0] && tokenResult.errors[0].message) || "Check your card details and try again.";
-            showPaymentMsg(id, "error", detail);
-            return;
-          }
-
-          const session = getSession();
-          const resp = await fetch(API_BASE_URL + "/api/bookings/" + id + "/pay", {
-            method: "POST",
-            headers: {
-              "content-type": "application/json",
-              authorization: "Bearer " + session.token
-            },
-            body: JSON.stringify({
-              source_id: tokenResult.token,
-              amount_type: type,
-              amount: amount
-            })
-          });
-          const data = await resp.json().catch(function () { return null; });
-
-          if (!resp.ok) {
-            showPaymentMsg(id, "error", (data && data.error) || "The payment didn't go through.");
-            return;
-          }
-
-          showPaymentMsg(id, "success", "Payment received -- thank you!");
-          setTimeout(loadDashboard, 1200);
-        } catch (err) {
-          showPaymentMsg(id, "error", "Couldn't reach the server. Check your connection and try again.");
-        } finally {
-          btn.disabled = false;
-          btn.textContent = "Pay";
+          showPaymentMsg("error", "Couldn't load the card form. Check SQUARE_APPLICATION_ID / SQUARE_LOCATION_ID in portal-config.js.");
         }
       });
     });
   }
 
+  document.getElementById("pay-submit-btn").addEventListener("click", async function () {
+    const b = currentBooking();
+    if (!b) return;
+    if (!selectedAmountType) { showPaymentMsg("error", "Choose a payment option above first."); return; }
+
+    let amount = null;
+    if (selectedAmountType === "custom") {
+      amount = Number(document.getElementById("pay-custom-amount").value);
+      if (!amount || amount <= 0) { showPaymentMsg("error", "Enter a valid amount."); return; }
+    }
+    if (!cardInstance) { showPaymentMsg("error", "Enter your card details first."); return; }
+
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = "Processing...";
+    try {
+      const tokenResult = await cardInstance.tokenize();
+      if (tokenResult.status !== "OK") {
+        const detail = (tokenResult.errors && tokenResult.errors[0] && tokenResult.errors[0].message) || "Check your card details and try again.";
+        showPaymentMsg("error", detail);
+        return;
+      }
+      const resp = await authFetch("/api/bookings/" + b.id + "/pay", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ source_id: tokenResult.token, amount_type: selectedAmountType, amount: amount })
+      });
+      const data = await resp.json().catch(function () { return null; });
+      if (!resp.ok) {
+        showPaymentMsg("error", (data && data.error) || "The payment didn't go through.");
+        return;
+      }
+      showPaymentMsg("success", "Payment received -- thank you!");
+      setTimeout(loadDashboard, 1200);
+    } catch (err) {
+      showPaymentMsg("error", "Couldn't reach the server. Check your connection and try again.");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Pay";
+    }
+  });
+
   // -------------------------------------------------------------------
-  // Backdrop / template selection (PB Backdrops + PBT Gallery widgets)
+  // Customize panel (backdrop / template selection widgets)
   // -------------------------------------------------------------------
   const BACKDROP_WIDGET_URL = "https://widget.pbbackdrops.com/embed/v1/0d58c666-196a-42da-a9b0-a68db8d385ca?choice=1";
   const TEMPLATE_WIDGET_URLS = {
     social: "https://pbtgallery.com?code=16039&galleries=14,15,16,17,42,43,22&em=1527",
     studio: "https://pbtgallery.com?code=16039&galleries=14,15,16,32,17,39,42,46,64&em=1528"
   };
-
-  function closeAllSelectionPanels() {
-    document.querySelectorAll(".payment-form[id^='sel-form-'].open").forEach(function (el) {
-      el.classList.remove("open");
-      const box = el.querySelector(".sq-card-box");
-      if (box) box.innerHTML = "";
-    });
-  }
+  let currentSelType = null;
 
   function loadWidgetInto(container, type, boothType) {
     container.innerHTML = "";
@@ -312,141 +681,135 @@
     container.appendChild(script);
   }
 
-  function wireSelectionHandlers() {
-    document.querySelectorAll("[data-sel-type]").forEach(function (btn) {
+  function renderCustomizePanel() {
+    const b = currentBooking();
+    if (!b) return;
+    currentSelType = null;
+    document.getElementById("sel-form").classList.remove("open");
+    document.getElementById("widget-box").innerHTML = "";
+    document.getElementById("sel-msg").className = "payment-msg";
+
+    const picks = [];
+    if (b.backdrop_choice) picks.push("Backdrop picked: " + escapeHtml(b.backdrop_choice));
+    if (b.template_choice) picks.push("Template picked: " + escapeHtml(b.template_choice));
+    document.getElementById("customize-picks").innerHTML = picks.length
+      ? picks.map(function (p) { return '<p class="pick-line">' + p + "</p>"; }).join("")
+      : "";
+
+    const buttons = [];
+    if (b.allow_backdrop_selection) {
+      buttons.push('<button data-sel-type="backdrop">' + (b.backdrop_choice ? "Change backdrop" : "Choose backdrop") + "</button>");
+    }
+    if (b.allow_template_selection) {
+      if (b.booth_type) {
+        buttons.push('<button data-sel-type="template">' + (b.template_choice ? "Change template" : "Choose template") + "</button>");
+      } else {
+        buttons.push('<span style="font-size:12px;color:#6b6355;">Template selection: ask us to set your booth type first</span>');
+      }
+    }
+    const optionsBox = document.getElementById("sel-options");
+    optionsBox.innerHTML = buttons.join("");
+    optionsBox.querySelectorAll("[data-sel-type]").forEach(function (btn) {
       btn.addEventListener("click", function () {
-        const id = btn.dataset.id;
         const type = btn.dataset.selType;
-        const form = document.getElementById("sel-form-" + id);
-        const wasOpenForThisType = form.classList.contains("open") && form.dataset.currentType === type;
-
-        closeAllSelectionPanels();
-
-        if (wasOpenForThisType) return;
-
-        form.dataset.currentType = type;
-        const box = document.getElementById("widget-box-" + id);
-        loadWidgetInto(box, type, form.dataset.boothType);
-
-        const input = document.getElementById("sel-choice-" + id);
-        input.placeholder = type === "backdrop" ? "e.g. Floral Wall Backdrop" : "e.g. Blush Floral Template";
-
+        const form = document.getElementById("sel-form");
+        const wasOpenForThisType = form.classList.contains("open") && currentSelType === type;
+        form.classList.remove("open");
+        document.getElementById("widget-box").innerHTML = "";
+        if (wasOpenForThisType) { currentSelType = null; return; }
+        currentSelType = type;
+        loadWidgetInto(document.getElementById("widget-box"), type, b.booth_type);
+        document.getElementById("sel-choice").placeholder = type === "backdrop" ? "e.g. Floral Wall Backdrop" : "e.g. Blush Floral Template";
         form.classList.add("open");
       });
     });
+  }
 
-    document.querySelectorAll("[id^='sel-submit-']").forEach(function (btn) {
-      btn.addEventListener("click", async function () {
-        const id = btn.dataset.id;
-        const form = document.getElementById("sel-form-" + id);
-        const type = form.dataset.currentType;
-        const msgEl = document.getElementById("sel-msg-" + id);
-        const choice = document.getElementById("sel-choice-" + id).value.trim();
+  document.getElementById("sel-submit-btn").addEventListener("click", async function () {
+    const b = currentBooking();
+    if (!b) return;
+    const msgEl = document.getElementById("sel-msg");
+    const choice = document.getElementById("sel-choice").value.trim();
+    if (!currentSelType) { msgEl.textContent = "Choose backdrop or template above first."; msgEl.className = "payment-msg show error"; return; }
+    if (!choice) { msgEl.textContent = "Type in what you picked first."; msgEl.className = "payment-msg show error"; return; }
 
-        if (!type) {
-          msgEl.textContent = "Choose backdrop or template above first.";
-          msgEl.className = "payment-msg show error";
-          return;
-        }
-        if (!choice) {
-          msgEl.textContent = "Type in what you picked first.";
-          msgEl.className = "payment-msg show error";
-          return;
-        }
-
-        btn.disabled = true;
-        btn.textContent = "Saving...";
-
-        try {
-          const session = getSession();
-          const resp = await fetch(API_BASE_URL + "/api/bookings/" + id + "/selection", {
-            method: "POST",
-            headers: {
-              "content-type": "application/json",
-              authorization: "Bearer " + session.token
-            },
-            body: JSON.stringify({ type: type, choice: choice })
-          });
-          const data = await resp.json().catch(function () { return null; });
-
-          if (!resp.ok) {
-            msgEl.textContent = (data && data.error) || "Couldn't save that.";
-            msgEl.className = "payment-msg show error";
-            return;
-          }
-
-          msgEl.textContent = "Saved!";
-          msgEl.className = "payment-msg show success";
-          setTimeout(loadDashboard, 900);
-        } catch (err) {
-          msgEl.textContent = "Couldn't reach the server. Check your connection and try again.";
-          msgEl.className = "payment-msg show error";
-        } finally {
-          btn.disabled = false;
-          btn.textContent = "Save my pick";
-        }
+    const btn = this;
+    btn.disabled = true;
+    btn.textContent = "Saving...";
+    try {
+      const resp = await authFetch("/api/bookings/" + b.id + "/selection", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ type: currentSelType, choice: choice })
       });
-    });
+      const data = await resp.json().catch(function () { return null; });
+      if (!resp.ok) {
+        msgEl.textContent = (data && data.error) || "Couldn't save that.";
+        msgEl.className = "payment-msg show error";
+        return;
+      }
+      msgEl.textContent = "Saved!";
+      msgEl.className = "payment-msg show success";
+      setTimeout(loadDashboard, 900);
+    } catch (err) {
+      msgEl.textContent = "Couldn't reach the server. Check your connection and try again.";
+      msgEl.className = "payment-msg show error";
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "Save my pick";
+    }
+  });
+
+  // -------------------------------------------------------------------
+  // Boot
+  // -------------------------------------------------------------------
+  function renderAll() {
+    renderDashboardPanel();
+    renderBookingPanel();
+    renderPaymentsPanel();
+    renderCustomizePanel();
+    renderEventSwitcher();
   }
 
   async function loadDashboard() {
-    const session = getSession();
-    if (!session || !session.token) {
-      clearSessionAndRedirect();
-      return;
-    }
-
-    const authHeader = { authorization: "Bearer " + session.token };
-
-    const meResp = await fetch(API_BASE_URL + "/api/me", { headers: authHeader });
-    if (meResp.status === 401) {
-      clearSessionAndRedirect();
-      return;
-    }
+    const meResp = await authFetch("/api/me");
     const me = await meResp.json();
-    document.getElementById("who-name").textContent =
-      (me.first_name ? me.first_name + " " : "") + (me.last_name || me.email || "");
+    session.customer = me;
 
-    const bookingsResp = await fetch(API_BASE_URL + "/api/me/bookings", { headers: authHeader });
-    if (bookingsResp.status === 401) {
-      clearSessionAndRedirect();
-      return;
-    }
+    document.getElementById("dash2-avatar").textContent = (me.first_name || me.email || "?").charAt(0).toUpperCase();
+
+    const bookingsResp = await authFetch("/api/me/bookings");
     const bookings = await bookingsResp.json();
+    allBookings = Array.isArray(bookings) ? bookings : [];
 
-    const list = document.getElementById("bookings-list");
-    if (!Array.isArray(bookings) || bookings.length === 0) {
-      list.innerHTML = '<div class="empty-state">No bookings yet. Once you inquire or book an event, it will show up here.</div>';
+    if (allBookings.length === 0) {
+      document.getElementById("dash2-app").style.display = "none";
+      document.getElementById("no-bookings-empty").style.display = "block";
       return;
     }
-    list.innerHTML = bookings.map(bookingCard).join("");
+    document.getElementById("no-bookings-empty").style.display = "none";
+    document.getElementById("dash2-app").style.display = "block";
 
-    // Fresh HTML each load -- old card instances point at DOM nodes that no
-    // longer exist, so drop them and let ensureCardMounted() re-attach.
-    Object.keys(cardInstances).forEach(function (id) { delete cardInstances[id]; });
-    Object.keys(selectedAmountType).forEach(function (id) { delete selectedAmountType[id]; });
-    wirePaymentHandlers();
-    wireSelectionHandlers();
+    if (!currentBookingId || !allBookings.some(function (b) { return b.id === currentBookingId; })) {
+      currentBookingId = pickDefaultBooking(allBookings);
+    }
+    renderAll();
   }
 
   document.getElementById("logout-btn").addEventListener("click", async function () {
-    const session = getSession();
-    if (session && session.token) {
-      try {
-        await fetch(API_BASE_URL + "/api/auth/customer-logout", {
-          method: "POST",
-          headers: { authorization: "Bearer " + session.token }
-        });
-      } catch (err) {
-        // Ignore network errors here -- clear the local session regardless.
-      }
+    try {
+      await authFetch("/api/auth/customer-logout", { method: "POST" });
+    } catch (err) {
+      // Ignore network errors here -- clear the local session regardless.
     }
     clearSessionAndRedirect();
   });
 
-  loadDashboard().catch(function () {
-    document.getElementById("bookings-list").innerHTML =
-      '<div class="empty-state">Couldn\'t load your bookings. Check your connection and refresh.</div>';
+  loadDashboard().catch(function (err) {
+    console.error("Couldn't load dashboard:", err);
+    const el = document.getElementById("load-error");
+    el.textContent = "Couldn't load your bookings. Check your connection and refresh.";
+    el.className = "portal-status show error";
   });
 </script>
 
